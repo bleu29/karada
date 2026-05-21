@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>身殿記録</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #F7F4EF;
+  --surface: #FFFFFF;
+  --surface2: #F0ECE4;
+  --border: rgba(0,0,0,0.09);
+  --border2: rgba(0,0,0,0.16);
+  --text: #1A1814;
+  --text2: #6B6760;
+  --text3: #A09D98;
+  --teal: #1D9E75;
+  --teal-bg: #E1F5EE;
+  --blue: #3B82C4;
+  --blue-bg: #E8F0F9;
+  --amber: #C47A1D;
+  --amber-bg: #FBF0DC;
+  --coral: #C4501D;
+  --coral-bg: #FAECE7;
+  --pink: #B84070;
+  --pink-bg: #FBEAF0;
+  --purple: #6B5FC4;
+  --purple-bg: #EEECFB;
+  --green: #4A8A1A;
+  --green-bg: #EEF6E2;
+  --r: 10px;
+  --r-sm: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #181714;
+    --surface: #221F1B;
+    --surface2: #2C2924;
+    --border: rgba(255,255,255,0.09);
+    --border2: rgba(255,255,255,0.18);
+    --text: #F0EDE7;
+    --text2: #A09D98;
+    --text3: #6B6760;
+    --teal-bg: #0A3D2B;
+    --blue-bg: #0E2640;
+    --amber-bg: #3D2800;
+    --coral-bg: #3D1A0A;
+    --pink-bg: #3D0E22;
+    --purple-bg: #201A4A;
+    --green-bg: #182A08;
+  }
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+.header {
+  padding: 18px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-title { font-size: 17px; font-weight: 700; letter-spacing: 0.03em; }
+.header-date { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text2); }
+.tabs {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+}
+.tab-btn {
+  padding: 12px 18px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--text2);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.tab-btn.active { color: var(--text); border-bottom-color: var(--teal); }
+.content { max-width: 600px; margin: 0 auto; padding: 20px 16px 80px; }
+.section { display: none; }
+.section.active { display: block; }
+.date-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 10px 14px;
+}
+.date-nav button {
+  width: 32px; height: 32px;
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.12s;
+}
+.date-nav button:hover { background: var(--border); }
+.date-nav-label {
+  flex: 1;
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+}
+.date-today-btn {
+  font-size: 11px;
+  padding: 4px 10px;
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  background: none;
+  color: var(--text2);
+  cursor: pointer;
+  font-family: inherit;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.card-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 12px;
+}
+.mood-row { display: flex; gap: 8px; }
+.mood-btn {
+  flex: 1;
+  padding: 14px 8px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  cursor: pointer;
+  text-align: center;
+  background: var(--surface2);
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.mood-icon { font-size: 26px; display: block; margin-bottom: 4px; }
+.mood-text { font-size: 11px; color: var(--text2); font-weight: 500; }
+.mood-btn:hover { border-color: var(--border2); transform: translateY(-1px); }
+.mood-btn.sel-blue  { border-color: var(--blue);  background: var(--blue-bg); }
+.mood-btn.sel-gray  { border-color: var(--text2); background: var(--surface2); border-width: 2px; }
+.mood-btn.sel-green { border-color: var(--teal);  background: var(--teal-bg); }
+.tog-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.tog {
+  padding: 6px 14px;
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 400;
+  background: var(--surface2);
+  color: var(--text2);
+  transition: all 0.12s;
+  line-height: 1.4;
+}
+.tog:hover { color: var(--text); }
+.tog.sel-amber  { background: var(--amber-bg);  color: var(--amber);  border-color: var(--amber); }
+.tog.sel-coral  { background: var(--coral-bg);  color: var(--coral);  border-color: var(--coral); }
+.tog.sel-pink   { background: var(--pink-bg);   color: var(--pink);   border-color: var(--pink); }
+.tog.sel-purple { background: var(--purple-bg); color: var(--purple); border-color: var(--purple); }
+.tog.sel-green  { background: var(--green-bg);  color: var(--green);  border-color: var(--green); }
+.tog.sel-teal   { background: var(--teal-bg);   color: var(--teal);   border-color: var(--teal); }
+.tog.sel-blue   { background: var(--blue-bg);   color: var(--blue);   border-color: var(--blue); }
+.weight-row { display: flex; align-items: center; gap: 10px; }
+.weight-input {
+  width: 90px;
+  padding: 9px 12px;
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  font-size: 18px;
+  font-family: 'DM Mono', monospace;
+  font-weight: 500;
+  background: var(--surface2);
+  color: var(--text);
+  text-align: center;
+}
+.weight-input:focus { outline: none; border-color: var(--teal); }
+.weight-unit { font-size: 13px; color: var(--text2); }
+.note-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1.6;
+  resize: none;
+  background: var(--surface2);
+  color: var(--text);
+  transition: border-color 0.12s;
+}
+.note-input:focus { outline: none; border-color: var(--teal); }
+.note-input::placeholder { color: var(--text3); }
+.sub-label { font-size: 12px; color: var(--text2); margin-bottom: 8px; margin-top: 14px; font-weight: 500; }
+.save-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  border-radius: var(--r);
+  font-size: 15px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: background 0.15s, transform 0.1s;
+}
+.save-btn:hover { background: #178a62; }
+.save-btn:active { transform: scale(0.99); }
+.save-msg { text-align: center; font-size: 13px; color: var(--teal); margin-top: 10px; min-height: 18px; font-weight: 500; }
+/* カレンダー */
+.cal-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.cal-header button {
+  width: 32px; height: 32px;
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.cal-header-label { flex: 1; text-align: center; font-weight: 700; font-size: 15px; }
+.cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 4px; }
+.cal-weekday { text-align: center; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--text3); padding: 4px 0; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.cal-day {
+  min-height: 60px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 4px 5px;
+  cursor: pointer;
+  transition: border-color 0.1s;
+}
+.cal-day:hover { border-color: var(--border2); }
+.cal-day.empty { background: transparent; border-color: transparent; cursor: default; }
+.cal-day.today { border-color: var(--teal); border-width: 1.5px; }
+.cal-day.has-data { background: var(--surface2); }
+.cal-day-num { font-size: 10px; color: var(--text2); margin-bottom: 3px; font-family: 'DM Mono', monospace; }
+.cal-day.today .cal-day-num { color: var(--teal); font-weight: 700; }
+.dots { display: flex; flex-wrap: wrap; gap: 2px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.dot-mood-blue  { background: var(--blue); }
+.dot-mood-gray  { background: var(--text3); }
+.dot-mood-green { background: var(--teal); }
+.dot-poop       { background: var(--amber); }
+.dot-pink       { background: var(--pink); }
+.dot-period     { background: var(--coral); }
+.dot-late       { background: var(--purple); }
+.dot-skin-bad   { background: #E24B4A; }
+.cal-dim { opacity: 0.2; }
+.cal-period-bg { background: var(--coral-bg) !important; }
+.cal-weight { font-size: 8.5px; color: var(--text3); margin-top: 2px; font-family: 'DM Mono', monospace; }
+.cal-filter-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.cal-filter {
+  padding: 6px 14px;
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  background: var(--surface2);
+  color: var(--text2);
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.cal-filter.active {
+  background: var(--pink-bg);
+  color: var(--pink);
+  border-color: var(--pink);
+}
+.cal-legend {
+  display: flex; flex-wrap: wrap; gap: 8px 14px;
+  font-size: 11px; color: var(--text2);
+  margin-bottom: 16px; padding: 10px 12px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm);
+}
+.legend-item { display: flex; align-items: center; gap: 5px; }
+/* グラフ */
+.chart-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px; margin-bottom: 12px;
+}
+.chart-card-title {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 14px;
+}
+.chart-wrap { position: relative; }
+.graph-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 11px; color: var(--text2); margin-bottom: 10px; }
+.gl-item { display: flex; align-items: center; gap: 5px; }
+.gl-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+/* インサイト */
+.insight-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px;
+  font-size: 13px; color: var(--text2); line-height: 1.8; margin-bottom: 12px;
+}
+.insight-box strong { color: var(--text); font-weight: 700; display: block; margin-bottom: 10px; font-size: 14px; }
+.insight-section { margin-bottom: 14px; }
+.insight-section-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 6px;
+}
+.insight-item {
+  padding: 7px 10px; border-radius: var(--r-sm);
+  background: var(--surface2); margin-bottom: 5px;
+  font-size: 13px; line-height: 1.6;
+}
+.insight-item:last-child { margin-bottom: 0; }
+.insight-empty { color: var(--text3); text-align: center; padding: 20px 0; font-size: 13px; }
+.insight-cycle {
+  padding: 10px 12px; border-left: 3px solid var(--pink);
+  background: var(--pink-bg); border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  margin-bottom: 12px; font-size: 13px;
+}
+.insight-cycle strong { color: var(--pink); font-size: 13px; display: inline; }
+/* データ管理 */
+.data-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px; margin-bottom: 12px;
+}
+.data-card-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+.data-btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.data-btn {
+  padding: 9px 16px;
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.data-btn:hover { background: var(--border); }
+.data-btn.danger { color: #C4291D; border-color: #C4291D22; background: #FAECE7; }
+.data-btn.danger:hover { background: #f5d5d2; }
+.data-hint { font-size: 12px; color: var(--text3); margin-top: 8px; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-title">身殿記録</div>
+  <div class="header-date" id="header-today"></div>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" onclick="showTab('record')">記録する</button>
+  <button class="tab-btn" onclick="showTab('calendar')">カレンダー</button>
+  <button class="tab-btn" onclick="showTab('graph')">グラフ・分析</button>
+</nav>
+
+<main class="content">
+
+  <!-- 記録タブ -->
+  <div class="section active" id="tab-record">
+    <div class="date-nav">
+      <button onclick="changeDay(-1)">‹</button>
+      <div class="date-nav-label" id="record-date-label"></div>
+      <button class="date-today-btn" onclick="goToday()">今日</button>
+      <button onclick="changeDay(1)">›</button>
+    </div>
+
+    <div class="card">
+      <div class="card-label">気分</div>
+      <div class="mood-row">
+        <button class="mood-btn" id="mood-blue" onclick="setMood('blue')">
+          <span class="mood-icon">☁️</span>
+          <span class="mood-text">ブルー</span>
+        </button>
+        <button class="mood-btn" id="mood-gray" onclick="setMood('gray')">
+          <span class="mood-icon">😐</span>
+          <span class="mood-text">普通</span>
+        </button>
+        <button class="mood-btn" id="mood-green" onclick="setMood('green')">
+          <span class="mood-icon">✨</span>
+          <span class="mood-text">調子いい</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">からだ</div>
+
+      <div class="sub-label">お通じ</div>
+      <div class="tog-row">
+        <button class="tog" data-group="poop" data-val="none"  onclick="setFlag('poop','none',this)">なし</button>
+        <button class="tog" data-group="poop" data-val="little" onclick="setFlag('poop','little',this)">少し</button>
+        <button class="tog" data-group="poop" data-val="yes"   onclick="setFlag('poop','yes',this)">あり ✓</button>
+        <button class="tog" data-group="poop" data-val="great" onclick="setFlag('poop','great',this)">すっきり</button>
+      </div>
+
+      <div class="sub-label">便の質（出た日だけ）</div>
+      <div class="tog-row">
+        <button class="tog" data-group="stool" data-val="hard"   onclick="setFlag('stool','hard',this)">硬い</button>
+        <button class="tog" data-group="stool" data-val="normal" onclick="setFlag('stool','normal',this)">普通</button>
+        <button class="tog" data-group="stool" data-val="soft"   onclick="setFlag('stool','soft',this)">ゆるい</button>
+      </div>
+
+      <div class="sub-label">肌の調子</div>
+      <div class="tog-row">
+        <button class="tog" data-group="skin" data-val="bad"  onclick="setFlag('skin','bad',this)">荒れてる</button>
+        <button class="tog" data-group="skin" data-val="ok"   onclick="setFlag('skin','ok',this)">普通</button>
+        <button class="tog" data-group="skin" data-val="good" onclick="setFlag('skin','good',this)">いい感じ</button>
+      </div>
+
+      <div class="sub-label">からだの重さ</div>
+      <div class="tog-row">
+        <button class="tog" data-group="body" data-val="heavy"  onclick="setFlag('body','heavy',this)">重い・だるい</button>
+        <button class="tog" data-group="body" data-val="normal" onclick="setFlag('body','normal',this)">普通</button>
+        <button class="tog" data-group="body" data-val="light"  onclick="setFlag('body','light',this)">軽い</button>
+      </div>
+
+      <div class="sub-label">体重（任意）</div>
+      <div class="weight-row">
+        <input class="weight-input" type="number" id="weight-input" placeholder="--" step="0.1" min="30" max="150">
+        <span class="weight-unit">kg</span>
+      </div>
+
+      <div class="sub-label">特記マーク（複数OK）</div>
+      <div class="tog-row">
+        <button class="tog" data-multi="pink"   onclick="toggleMulti('pink',this)">🌸 ピンクデー</button>
+        <button class="tog" data-multi="period" onclick="toggleMulti('period',this)">🔴 生理</button>
+        <button class="tog" data-multi="late"   onclick="toggleMulti('late',this)">🌙 夜更かし</button>
+        <button class="tog" data-multi="exercise" onclick="toggleMulti('exercise',this)">🏃 運動</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">食事</div>
+
+      <div class="sub-label">量・内容のざっくり印象</div>
+      <div class="tog-row">
+        <button class="tog" data-group="food" data-val="light"  onclick="setFlag('food','light',this)">軽め</button>
+        <button class="tog" data-group="food" data-val="normal" onclick="setFlag('food','normal',this)">普通</button>
+        <button class="tog" data-group="food" data-val="heavy"  onclick="setFlag('food','heavy',this)">がっつり</button>
+      </div>
+
+      <div class="sub-label">食事タグ（複数OK）</div>
+      <div class="tog-row">
+        <button class="tog" data-multi="sweet"  onclick="toggleMulti('sweet',this)">🍫 甘い多め</button>
+        <button class="tog" data-multi="oily"   onclick="toggleMulti('oily',this)">🍟 脂っこい</button>
+        <button class="tog" data-multi="eating_out" onclick="toggleMulti('eating_out',this)">🍽 外食</button>
+        <button class="tog" data-multi="lowwater" onclick="toggleMulti('lowwater',this)">💧 水分少なめ</button>
+        <button class="tog" data-multi="junk"   onclick="toggleMulti('junk',this)">🛒 ジャンク</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">メモ（任意）</div>
+      <textarea class="note-input" id="note-input" rows="2" placeholder="気になったこと、食べたもの、体の感じなど"></textarea>
+    </div>
+
+    <button class="save-btn" onclick="saveRecord()">この日を保存する</button>
+    <div class="save-msg" id="save-msg"></div>
+  </div>
+
+  <!-- カレンダータブ -->
+  <div class="section" id="tab-calendar">
+    <div class="cal-header">
+      <button onclick="changeMonth(-1)">‹</button>
+      <div class="cal-header-label" id="cal-month-label"></div>
+      <button onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="cal-filter-row">
+      <button class="cal-filter active" onclick="setCalFilter('all',this)">すべて</button>
+      <button class="cal-filter" onclick="setCalFilter('bad',this)">体調悪い日</button>
+      <button class="cal-filter" onclick="setCalFilter('period',this)">生理期間</button>
+    </div>
+    <div class="cal-legend">
+      <span class="legend-item"><span class="dot dot-mood-blue"></span>ブルー</span>
+      <span class="legend-item"><span class="dot dot-mood-gray"></span>普通</span>
+      <span class="legend-item"><span class="dot dot-mood-green"></span>調子いい</span>
+      <span class="legend-item"><span class="dot dot-poop"></span>お通じ</span>
+      <span class="legend-item"><span class="dot dot-pink"></span>ピンクデー</span>
+      <span class="legend-item"><span class="dot dot-period"></span>生理</span>
+      <span class="legend-item"><span class="dot dot-late"></span>夜更かし</span>
+      <span class="legend-item"><span class="dot dot-skin-bad"></span>肌荒れ</span>
+    </div>
+    <div class="cal-weekdays">
+      <div class="cal-weekday">日</div><div class="cal-weekday">月</div>
+      <div class="cal-weekday">火</div><div class="cal-weekday">水</div>
+      <div class="cal-weekday">木</div><div class="cal-weekday">金</div>
+      <div class="cal-weekday">土</div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+
+  <!-- グラフ・分析タブ -->
+  <div class="section" id="tab-graph">
+    <div class="chart-card">
+      <div class="chart-card-title">気分の推移（直近30日）</div>
+      <div class="graph-legend">
+        <span class="gl-item"><span class="gl-dot" style="background:#3B82C4"></span>ブルー=1 / 普通=2 / 調子いい=3</span>
+      </div>
+      <div class="chart-wrap" style="height:110px">
+        <canvas id="moodChart" role="img" aria-label="気分推移グラフ">気分データ</canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-card-title">お通じ・肌荒れ・夜更かし（直近30日）</div>
+      <div class="graph-legend">
+        <span class="gl-item"><span class="gl-dot" style="background:#C47A1D"></span>お通じあり</span>
+        <span class="gl-item"><span class="gl-dot" style="background:#E24B4A"></span>肌荒れ</span>
+        <span class="gl-item"><span class="gl-dot" style="background:#6B5FC4"></span>夜更かし</span>
+      </div>
+      <div class="chart-wrap" style="height:100px">
+        <canvas id="bodyChart" role="img" aria-label="からだ状態グラフ">からだデータ</canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-card-title">体重（直近30日）</div>
+      <div class="chart-wrap" style="height:130px">
+        <canvas id="weightChart" role="img" aria-label="体重グラフ">体重データ</canvas>
+      </div>
+    </div>
+
+    <!-- 週次サマリー -->
+    <div class="data-card" id="weekly-summary-card">
+      <div class="data-card-title">📅 週次サマリー</div>
+      <div id="weekly-summary-body"><div style="color:var(--text3);font-size:13px;">記録が増えると表示されます</div></div>
+    </div>
+
+    <div class="insight-box" id="insight-box">
+      <div class="insight-empty">記録を7日以上続けると<br>パターンのヒントが表示されます 🔍</div>
+    </div>
+
+    <!-- 生理予定日 -->
+    <div class="data-card" id="period-forecast-card">
+      <div class="data-card-title">🔴 生理・排卵の予定</div>
+      <div id="period-forecast-body"><div style="color:var(--text3);font-size:13px;">生理マークを記録すると表示されます</div></div>
+    </div>
+
+    <!-- データ管理 -->
+    <div class="data-card">
+      <div class="data-card-title">データ管理</div>
+      <div class="data-btn-row">
+        <button class="data-btn" onclick="exportData()">📤 JSONで書き出し</button>
+        <label class="data-btn" style="cursor:pointer;">
+          📥 JSONを読み込み
+          <input type="file" id="import-input" accept="application/json" style="display:none" onchange="importData(event)">
+        </label>
+        <button class="data-btn danger" onclick="deleteAll()">🗑 全データ削除</button>
+      </div>
+      <div class="data-hint">書き出したJSONは別端末での読み込みやバックアップに使えます</div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const STORE_KEY = 'health_records_v1';
+let records = {};
+let currentDate = new Date();
+let calMonth = new Date();
+let currentMood = null;
+let currentFlags = {};
+let currentMulti = new Set();
+let moodChart, bodyChart, weightChart;
+let calFilter = 'all';
+
+function dateKey(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${dd}`;
+}
+function loadRecords() {
+  try { const s = localStorage.getItem(STORE_KEY); if (s) records = JSON.parse(s); } catch(e) {}
+}
+function saveRecords() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(records)); } catch(e) {}
+}
+
+function updateRecordDateLabel() {
+  const d = currentDate;
+  const days = ['日','月','火','水','木','金','土'];
+  document.getElementById('record-date-label').textContent =
+    `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 (${days[d.getDay()]})`;
+}
+
+function changeDay(n) {
+  currentDate = new Date(currentDate.getTime() + n * 86400000);
+  updateRecordDateLabel();
+  loadDay(dateKey(currentDate));
+}
+
+function goToday() {
+  currentDate = new Date();
+  updateRecordDateLabel();
+  loadDay(dateKey(currentDate));
+}
+
+function allSelClasses() { return ['sel-amber','sel-coral','sel-pink','sel-purple','sel-green','sel-teal','sel-blue']; }
+function selClass(group) {
+  const map = { poop:'sel-amber', stool:'sel-blue', skin:'sel-coral', body:'sel-teal', food:'sel-green' };
+  return map[group] || 'sel-teal';
+}
+function multiSelClass(key) {
+  const map = { pink:'sel-pink', period:'sel-coral', late:'sel-purple', exercise:'sel-teal', sweet:'sel-amber', oily:'sel-amber', eating_out:'sel-amber', lowwater:'sel-blue', junk:'sel-coral' };
+  return map[key] || 'sel-teal';
+}
+
+function loadDay(dk) {
+  const r = records[dk] || {};
+  currentMood = r.mood || null;
+  currentFlags = Object.assign({}, r.flags || {});
+  currentMulti = new Set(r.multi || []);
+  document.getElementById('weight-input').value = r.weight || '';
+  document.getElementById('note-input').value = r.note || '';
+  ['blue','gray','green'].forEach(m => {
+    document.getElementById('mood-'+m).classList.remove('sel-blue','sel-gray','sel-green');
+  });
+  if (currentMood) document.getElementById('mood-'+currentMood).classList.add('sel-'+currentMood);
+  document.querySelectorAll('.tog[data-group]').forEach(b => {
+    b.classList.remove(...allSelClasses());
+    if (currentFlags[b.dataset.group] === b.dataset.val) b.classList.add(selClass(b.dataset.group));
+  });
+  document.querySelectorAll('.tog[data-multi]').forEach(b => {
+    b.classList.remove(...allSelClasses());
+    if (currentMulti.has(b.dataset.multi)) b.classList.add(multiSelClass(b.dataset.multi));
+  });
+}
+
+function setMood(m) {
+  ['blue','gray','green'].forEach(x => document.getElementById('mood-'+x).classList.remove('sel-blue','sel-gray','sel-green'));
+  if (currentMood === m) { currentMood = null; return; }
+  currentMood = m;
+  document.getElementById('mood-'+m).classList.add('sel-'+m);
+}
+
+function setFlag(group, val, el) {
+  document.querySelectorAll(`.tog[data-group="${group}"]`).forEach(b => b.classList.remove(...allSelClasses()));
+  if (currentFlags[group] === val) { delete currentFlags[group]; return; }
+  currentFlags[group] = val;
+  el.classList.add(selClass(group));
+}
+
+function toggleMulti(key, el) {
+  if (currentMulti.has(key)) {
+    currentMulti.delete(key);
+    el.classList.remove(...allSelClasses());
+  } else {
+    currentMulti.add(key);
+    el.classList.add(multiSelClass(key));
+  }
+}
+
+function saveRecord() {
+  const dk = dateKey(currentDate);
+  const w = parseFloat(document.getElementById('weight-input').value);
+  records[dk] = {
+    mood: currentMood,
+    flags: {...currentFlags},
+    multi: [...currentMulti],
+    weight: isNaN(w) ? null : Math.round(w*10)/10,
+    note: document.getElementById('note-input').value.trim()
+  };
+  saveRecords();
+  const msg = document.getElementById('save-msg');
+  msg.textContent = '✓ 保存しました';
+  setTimeout(() => msg.textContent = '', 2000);
+}
+
+// ── カレンダー ──
+function isBadDay(r) {
+  if (!r) return false;
+  return r.mood==='blue' || (r.flags&&r.flags.skin==='bad') || (r.flags&&r.flags.poop==='none') || (r.flags&&r.flags.body==='heavy');
+}
+
+function isPeriodDay(r) {
+  return r && r.multi && r.multi.includes('period');
+}
+
+function setCalFilter(f, el) {
+  calFilter = f;
+  document.querySelectorAll('.cal-filter').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderCal();
+}
+
+function renderCal() {
+  const y = calMonth.getFullYear(), m = calMonth.getMonth();
+  document.getElementById('cal-month-label').textContent = `${y}年${m+1}月`;
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  const todayKey = dateKey(new Date());
+  const firstDay = new Date(y, m, 1).getDay();
+  for (let i = 0; i < firstDay; i++) {
+    const e = document.createElement('div'); e.className = 'cal-day empty'; grid.appendChild(e);
+  }
+  const total = new Date(y, m+1, 0).getDate();
+  for (let d = 1; d <= total; d++) {
+    const dk = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const r = records[dk];
+    // フィルタリング
+    const show = calFilter==='all' || (calFilter==='bad' && isBadDay(r)) || (calFilter==='period' && isPeriodDay(r));
+    const cell = document.createElement('div');
+    const isPeriod = isPeriodDay(r);
+    let cls = 'cal-day';
+    if (dk===todayKey) cls += ' today';
+    if (r && show) cls += ' has-data';
+    if (!show) cls += ' cal-dim';
+    if (isPeriod) cls += ' cal-period-bg';
+    cell.className = cls;
+    let dots = '';
+    if (r && show) {
+      if (r.mood) dots += `<span class="dot dot-mood-${r.mood}"></span>`;
+      if (r.flags && r.flags.poop && r.flags.poop!=='none') dots += `<span class="dot dot-poop"></span>`;
+      if (r.multi && r.multi.includes('pink'))    dots += `<span class="dot dot-pink"></span>`;
+      if (r.multi && r.multi.includes('period'))  dots += `<span class="dot dot-period"></span>`;
+      if (r.multi && r.multi.includes('late'))    dots += `<span class="dot dot-late"></span>`;
+      if (r.flags && r.flags.skin==='bad')        dots += `<span class="dot dot-skin-bad"></span>`;
+    }
+    cell.innerHTML = `<div class="cal-day-num">${d}</div><div class="dots">${dots}</div>${r&&r.weight&&show?`<div class="cal-weight">${r.weight}kg</div>`:''}`;
+    cell.onclick = () => { currentDate = new Date(y,m,d); showTab('record'); updateRecordDateLabel(); loadDay(dk); };
+    grid.appendChild(cell);
+  }
+}
+
+function changeMonth(n) {
+  calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth()+n, 1);
+  renderCal();
+}
+
+// ── グラフ ──
+function renderGraphs() {
+  const days30 = [];
+  const now = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now.getTime() - i*86400000);
+    days30.push({ key: dateKey(d), label: `${d.getMonth()+1}/${d.getDate()}` });
+  }
+  const labels    = days30.map(d => d.label);
+  const moodVal   = days30.map(d => { const r=records[d.key]; if(!r||!r.mood) return null; return r.mood==='blue'?1:r.mood==='gray'?2:3; });
+  const poopVal   = days30.map(d => { const r=records[d.key]; return r&&r.flags&&r.flags.poop&&r.flags.poop!=='none'?1:0; });
+  const skinBad   = days30.map(d => { const r=records[d.key]; return r&&r.flags&&r.flags.skin==='bad'?1:0; });
+  const lateVal   = days30.map(d => { const r=records[d.key]; return r&&r.multi&&r.multi.includes('late')?1:0; });
+  const weightVal = days30.map(d => { const r=records[d.key]; return r&&r.weight?r.weight:null; });
+  const tf = { size:10, family:"'DM Mono', monospace" };
+  const gc = 'rgba(128,128,128,0.12)';
+
+  if (moodChart) moodChart.destroy();
+  moodChart = new Chart(document.getElementById('moodChart'), {
+    type: 'line',
+    data: { labels, datasets: [{ data: moodVal, borderColor:'#1D9E75', backgroundColor:'rgba(29,158,117,0.08)', tension:0.35, spanGaps:true, pointRadius:3, pointBackgroundColor:'#1D9E75', borderWidth:2 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales: { y:{min:0.5,max:3.5,ticks:{stepSize:1,callback:v=>v===1?'☁️':v===2?'😐':v===3?'✨':'',font:tf},grid:{color:gc}}, x:{ticks:{maxTicksLimit:8,font:tf},grid:{display:false}} } }
+  });
+
+  if (bodyChart) bodyChart.destroy();
+  bodyChart = new Chart(document.getElementById('bodyChart'), {
+    type: 'bar',
+    data: { labels, datasets: [
+      { data:poopVal,  backgroundColor:'rgba(196,122,29,0.7)', borderWidth:0, barThickness:6 },
+      { data:skinBad,  backgroundColor:'rgba(226,75,74,0.7)',  borderWidth:0, barThickness:6 },
+      { data:lateVal,  backgroundColor:'rgba(107,95,196,0.7)', borderWidth:0, barThickness:6 }
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales: { y:{display:false}, x:{ticks:{maxTicksLimit:8,font:tf},grid:{display:false}} } }
+  });
+
+  if (weightChart) weightChart.destroy();
+  const wf = weightVal.filter(v=>v!==null);
+  const wMin = wf.length ? Math.floor(Math.min(...wf)-0.5) : 40;
+  const wMax = wf.length ? Math.ceil(Math.max(...wf)+0.5) : 80;
+  weightChart = new Chart(document.getElementById('weightChart'), {
+    type: 'line',
+    data: { labels, datasets: [{ data:weightVal, borderColor:'#3B82C4', backgroundColor:'rgba(59,130,196,0.08)', tension:0.35, spanGaps:true, pointRadius:4, pointBackgroundColor:'#3B82C4', borderWidth:2 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales: { y:{min:wMin,max:wMax,ticks:{callback:v=>v+'kg',font:tf},grid:{color:gc}}, x:{ticks:{maxTicksLimit:8,font:tf},grid:{display:false}} } }
+  });
+
+  renderInsight();
+}
+
+// ── 分析（直近90日） ──
+function getLogs90() {
+  const now = new Date();
+  const result = [];
+  for (let i = 89; i >= 0; i--) {
+    const d = new Date(now.getTime() - i*86400000);
+    const dk = dateKey(d);
+    if (records[dk]) result.push({ key: dk, r: records[dk] });
+  }
+  return result;
+}
+
+function analyzePreCause(logs, targetFn, excludeLabels) {
+  // 対象日の1〜3日前に多かったシグナルを集計
+  const counts = new Map();
+  let targetDays = 0;
+  for (let i = 0; i < logs.length; i++) {
+    if (!targetFn(logs[i].r)) continue;
+    targetDays++;
+    for (let j = Math.max(0, i-3); j < i; j++) {
+      const r = logs[j].r;
+      const sigs = getSignals(r);
+      sigs.forEach(s => {
+        if (!excludeLabels.includes(s)) counts.set(s, (counts.get(s)||0)+1);
+      });
+    }
+  }
+  const top = Array.from(counts.entries()).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  return { targetDays, top };
+}
+
+function getSignals(r) {
+  const s = [];
+  if (r.flags) {
+    if (r.flags.poop==='none') s.push('排便なし');
+    if (r.flags.stool==='hard') s.push('便が硬い');
+    if (r.flags.skin==='bad') s.push('肌荒れ');
+    if (r.flags.body==='heavy') s.push('体が重い');
+    if (r.flags.food==='heavy') s.push('がっつり食');
+  }
+  if (r.multi) {
+    if (r.multi.includes('late')) s.push('夜更かし');
+    if (r.multi.includes('sweet')) s.push('甘い多め');
+    if (r.multi.includes('oily')) s.push('脂っこい');
+    if (r.multi.includes('junk')) s.push('ジャンク');
+    if (r.multi.includes('lowwater')) s.push('水分少なめ');
+    if (r.multi.includes('eating_out')) s.push('外食');
+  }
+  if (r.mood==='blue') s.push('ブルー');
+  return s;
+}
+
+function estimateCycle(logs) {
+  const periodDates = logs.filter(l => l.r.multi && l.r.multi.includes('period')).map(l => l.key);
+  if (periodDates.length < 2) return null;
+  const starts = [];
+  for (let i = 0; i < periodDates.length; i++) {
+    if (i===0 || diffDays(periodDates[i], periodDates[i-1]) > 2) starts.push(periodDates[i]);
+  }
+  if (starts.length < 2) return { starts, avg: null };
+  const diffs = [];
+  for (let i = 1; i < starts.length; i++) diffs.push(diffDays(starts[i], starts[i-1]));
+  const valid = diffs.filter(d => d>=18 && d<=45);
+  if (!valid.length) return { starts, avg: null };
+  const avg = Math.round(valid.reduce((a,b)=>a+b,0)/valid.length);
+  const lastStart = starts[starts.length-1];
+  const nextEst = addDays(lastStart, avg);
+  return { starts, avg, lastStart, nextEst };
+}
+
+function diffDays(a, b) {
+  return Math.round((new Date(a+'T00:00:00') - new Date(b+'T00:00:00')) / 86400000);
+}
+function addDays(dk, n) {
+  const d = new Date(dk+'T00:00:00');
+  d.setDate(d.getDate()+n);
+  return dateKey(d);
+}
+
+function renderInsight() {
+  const box = document.getElementById('insight-box');
+  const logs = getLogs90();
+  if (logs.length < 7) {
+    box.innerHTML = '<div class="insight-empty">記録を7日以上続けると<br>パターンのヒントが表示されます 🔍</div>';
+    return;
+  }
+
+  let html = '<strong>📊 傾向のヒント（直近90日）</strong>';
+
+  // 生理周期
+  const cycle = estimateCycle(logs);
+  if (cycle && cycle.avg) {
+    html += `<div class="insight-cycle"><strong>🔴 生理周期の推定：</strong> 平均 ${cycle.avg} 日ごと。直近の開始日 ${cycle.lastStart}、次回目安 ${cycle.nextEst} 頃。<br><span style="font-size:11px;opacity:0.7">※ 記録された生理日からの目安です。</span></div>`;
+  }
+
+  // 各悪化項目の前兆パターン
+  const targets = [
+    { label: '肌荒れ', fn: r => r.flags && r.flags.skin==='bad', excl: ['肌荒れ'] },
+    { label: '排便なし', fn: r => r.flags && r.flags.poop==='none', excl: ['排便なし','便が硬い'] },
+    { label: 'ブルー', fn: r => r.mood==='blue', excl: ['ブルー'] },
+    { label: '体が重い', fn: r => r.flags && r.flags.body==='heavy', excl: ['体が重い'] },
+  ];
+
+  html += '<div class="insight-section"><div class="insight-section-title">調子が悪い日の前1〜3日に多いもの</div>';
+  let anyFound = false;
+  targets.forEach(t => {
+    const { targetDays, top } = analyzePreCause(logs, t.fn, t.excl);
+    if (!targetDays) return;
+    if (!top.length) {
+      html += `<div class="insight-item">【${t.label}】${targetDays}日あり。まだ前兆のパターンは薄いです。</div>`;
+      return;
+    }
+    anyFound = true;
+    const topStr = top.map(([s,c]) => `${s}(${c}回)`).join('、');
+    html += `<div class="insight-item">【${t.label}】${targetDays}日 → 前日〜3日前に多い：${topStr}</div>`;
+  });
+  if (!anyFound) html += '<div class="insight-item">まだパターンを見つけるには記録が少ないです。続けてみてね。</div>';
+  html += '</div>';
+
+  // 簡易相関ヒント
+  const hints = [];
+  // 夜更かし→翌日ブルー
+  let lb=0,lt=0;
+  for (let i=1;i<logs.length;i++) {
+    const prev=logs[i-1].r, cur=logs[i].r;
+    if (prev.multi && prev.multi.includes('late')) { lt++; if(cur.mood==='blue') lb++; }
+  }
+  if (lt>=3 && lb/lt>=0.4) hints.push(`🌙 夜更かしの翌日はブルーになりやすい（${lb}/${lt}回）`);
+
+  // 脂っこい/甘い/ジャンク→翌日肌荒れ
+  ['oily','sweet','junk'].forEach(tag => {
+    let bad=0,tot=0;
+    for (let i=0;i<logs.length-1;i++) {
+      const cur=logs[i].r, nxt=logs[i+1].r;
+      if (cur.multi && cur.multi.includes(tag)) {
+        tot++;
+        if (nxt.flags && nxt.flags.skin==='bad') bad++;
+      }
+    }
+    const label = {oily:'脂っこい食事',sweet:'甘い多め',junk:'ジャンク'}[tag];
+    if (tot>=3 && bad/tot>=0.35) hints.push(`🍽 ${label}の翌日に肌が荒れやすい（${bad}/${tot}回）`);
+  });
+
+  // 水分少ない→翌日便なし
+  let wb=0,wt=0;
+  for (let i=0;i<logs.length-1;i++) {
+    const cur=logs[i].r, nxt=logs[i+1].r;
+    if (cur.multi && cur.multi.includes('lowwater')) {
+      wt++;
+      if (nxt.flags && nxt.flags.poop==='none') wb++;
+    }
+  }
+  if (wt>=3 && wb/wt>=0.4) hints.push(`💧 水分少なめの翌日に便がでないことが多い（${wb}/${wt}回）`);
+
+  // お通じある日は調子いい
+  const goodPoop  = logs.filter(l=>l.r.mood==='green'&&l.r.flags&&l.r.flags.poop&&l.r.flags.poop!=='none').length;
+  const goodNoPoop = logs.filter(l=>l.r.mood==='green'&&(!l.r.flags||!l.r.flags.poop||l.r.flags.poop==='none')).length;
+  if (goodPoop>=3 && goodPoop>goodNoPoop) hints.push(`💛 お通じがある日は調子いいと重なりやすい（${goodPoop}回）`);
+
+  // 生理前ブルー
+  let pb=0,pt=0;
+  for (let i=1;i<logs.length;i++) {
+    const nxt=logs[i].r;
+    if (nxt.multi && nxt.multi.includes('period')) {
+      pt++;
+      if (logs[i-1].r.mood==='blue') pb++;
+    }
+  }
+  if (pt>=2 && pb/pt>=0.4) hints.push(`🔴 生理前日にブルーになりやすい（${pb}/${pt}回）`);
+
+  if (hints.length) {
+    html += '<div class="insight-section"><div class="insight-section-title">相関ヒント</div>';
+    hints.forEach(h => { html += `<div class="insight-item">${h}</div>`; });
+    html += '</div>';
+  }
+
+  box.innerHTML = html;
+  renderWeeklySummary();
+  renderPeriodForecast(logs);
+}
+
+// ── 生理・排卵予定日 ──
+function renderPeriodForecast(logs) {
+  const el = document.getElementById('period-forecast-body');
+  if (!el) return;
+  const cycle = estimateCycle(logs);
+  if (!cycle || !cycle.avg) {
+    el.innerHTML = '<div style="color:var(--text3);font-size:13px;">生理マークを2回以上記録すると表示されます</div>';
+    return;
+  }
+
+  const today = dateKey(new Date());
+  const nextPeriod = cycle.nextEst;
+  const daysToNext = diffDays(nextPeriod, today);
+
+  // 排卵日は次の生理の約14日前
+  const ovulation = addDays(nextPeriod, -14);
+  const daysToOv = diffDays(ovulation, today);
+
+  const fmtDate = dk => {
+    const d = new Date(dk+'T00:00:00');
+    return `${d.getMonth()+1}/${d.getDate()}(${['日','月','火','水','木','金','土'][d.getDay()]})`;
+  };
+
+  const periodStr = daysToNext < 0
+    ? `${fmtDate(nextPeriod)} <span style="color:var(--coral);font-size:12px;">（${Math.abs(daysToNext)}日前？）</span>`
+    : daysToNext === 0
+    ? `${fmtDate(nextPeriod)} <span style="color:var(--coral);font-size:13px;font-weight:700;">今日頃</span>`
+    : `${fmtDate(nextPeriod)} <span style="color:var(--text2);font-size:12px;">あと${daysToNext}日</span>`;
+
+  const ovStr = daysToOv < 0
+    ? `${fmtDate(ovulation)} <span style="color:var(--text3);font-size:12px;">（過ぎた頃）</span>`
+    : `${fmtDate(ovulation)} <span style="color:var(--text2);font-size:12px;">あと${daysToOv}日</span>`;
+
+  // 早くて2日前、遅くて2日後の幅
+  const earlyStr = fmtDate(addDays(nextPeriod, -2)).slice(0, fmtDate(addDays(nextPeriod, -2)).indexOf('('));
+  const lateStr  = fmtDate(addDays(nextPeriod,  2)).slice(0, fmtDate(addDays(nextPeriod,  2)).indexOf('('));
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div style="text-align:center;padding:12px 8px;background:var(--coral-bg);border-radius:var(--r-sm);">
+        <div style="font-size:11px;color:var(--coral);font-weight:700;margin-bottom:6px;">生理予定日</div>
+        <div style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);">${fmtDate(nextPeriod).slice(0,5)}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:4px;">${daysToNext<=0?'今日頃':'あと'+daysToNext+'日'}</div>
+      </div>
+      <div style="text-align:center;padding:12px 8px;background:var(--purple-bg);border-radius:var(--r-sm);">
+        <div style="font-size:11px;color:var(--purple);font-weight:700;margin-bottom:6px;">排卵予定日</div>
+        <div style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);">${fmtDate(ovulation).slice(0,5)}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:4px;">${daysToOv<=0?'過ぎた頃':'あと'+daysToOv+'日'}</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--text3);text-align:center;">
+      周期約${cycle.avg}日 ／ 早くて${earlyStr}、遅くて${lateStr}頃<br>
+      ※ 記録から推定した目安です
+    </div>`;
+}
+
+// ── 週次サマリー ──
+function getWeekLogs(offsetWeeks) {
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dayOfWeek = todayStart.getDay(); // 0=日
+  const thisMonday = new Date(todayStart.getTime() - ((dayOfWeek===0?6:dayOfWeek-1)*86400000));
+  const start = new Date(thisMonday.getTime() - offsetWeeks*7*86400000);
+  const end   = new Date(start.getTime() + 7*86400000);
+  const logs = [];
+  for (let d = new Date(start); d < end; d.setDate(d.getDate()+1)) {
+    const dk = dateKey(d);
+    if (records[dk]) logs.push({ key: dk, r: records[dk] });
+  }
+  return { logs, start, end };
+}
+
+function weekLabel(start, end) {
+  const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
+  const endDay = new Date(end.getTime()-86400000);
+  return `${fmt(start)}〜${fmt(endDay)}`;
+}
+
+function weekStats(logs) {
+  const n = logs.length;
+  if (!n) return null;
+  const moodScore = logs.filter(l=>l.r.mood).reduce((a,l)=>a+(l.r.mood==='blue'?1:l.r.mood==='gray'?2:3),0) / logs.filter(l=>l.r.mood).length || null;
+  const poopDays  = logs.filter(l=>l.r.flags&&l.r.flags.poop&&l.r.flags.poop!=='none').length;
+  const skinBad   = logs.filter(l=>l.r.flags&&l.r.flags.skin==='bad').length;
+  const lateDays  = logs.filter(l=>l.r.multi&&l.r.multi.includes('late')).length;
+  const weights   = logs.map(l=>l.r.weight).filter(v=>v);
+  const avgWeight = weights.length ? Math.round(weights.reduce((a,b)=>a+b,0)/weights.length*10)/10 : null;
+  return { n, moodScore, poopDays, skinBad, lateDays, avgWeight };
+}
+
+function renderWeeklySummary() {
+  const el = document.getElementById('weekly-summary-body');
+  const thisWeek = getWeekLogs(0);
+  const lastWeek = getWeekLogs(1);
+  const tw = weekStats(thisWeek.logs);
+  const lw = weekStats(lastWeek.logs);
+  if (!tw) { el.innerHTML = '<div style="color:var(--text3);font-size:13px;">今週の記録がまだありません</div>'; return; }
+
+  const moodLabel = s => s===null?'-':s>=2.5?'✨ 良好':s>=1.8?'😐 普通':'☁️ 低め';
+  const diff = (a, b, unit='', invert=false) => {
+    if (a===null||b===null) return '';
+    const d = Math.round((a-b)*10)/10;
+    if (d===0) return '<span style="color:var(--text3)">→ 変わらず</span>';
+    const up = d > 0;
+    const better = invert ? !up : up;
+    const color = better ? 'var(--teal)' : 'var(--coral)';
+    return `<span style="color:${color}">${up?'▲':'▼'}${Math.abs(d)}${unit}</span>`;
+  };
+
+  const rows = [
+    ['記録日数', `${tw.n}日`, lw ? `先週${lw.n}日` : ''],
+    ['気分', moodLabel(tw.moodScore), lw ? diff(tw.moodScore, lw.moodScore) : ''],
+    ['お通じあり', `${tw.poopDays}日`, lw ? diff(tw.poopDays, lw.poopDays, '日') : ''],
+    ['肌荒れ', `${tw.skinBad}日`, lw ? diff(tw.skinBad, lw.skinBad, '日', true) : ''],
+    ['夜更かし', `${tw.lateDays}日`, lw ? diff(tw.lateDays, lw.lateDays, '日', true) : ''],
+    ...(tw.avgWeight ? [['体重平均', `${tw.avgWeight}kg`, lw&&lw.avgWeight ? diff(tw.avgWeight, lw.avgWeight, 'kg', true) : '']] : []),
+  ];
+
+  const twLabel = weekLabel(thisWeek.start, thisWeek.end);
+  const lwLabel = lw ? weekLabel(lastWeek.start, lastWeek.end) : '';
+
+  let html = `<div style="font-size:11px;color:var(--text3);margin-bottom:10px;">今週 ${twLabel}${lwLabel?' ／ 先週 '+lwLabel:''}</div>`;
+  html += '<table style="width:100%;border-collapse:collapse;">';
+  rows.forEach(([label, val, cmp]) => {
+    html += `<tr>
+      <td style="padding:5px 0;font-size:13px;color:var(--text2);width:40%">${label}</td>
+      <td style="padding:5px 0;font-size:14px;font-weight:500;">${val}</td>
+      <td style="padding:5px 0;font-size:12px;text-align:right;">${cmp}</td>
+    </tr>`;
+  });
+  html += '</table>';
+  el.innerHTML = html;
+}
+
+// ── データ管理 ──
+function exportData() {
+  const data = JSON.stringify(records, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const today = dateKey(new Date());
+  a.href = url;
+  a.download = `karada-diary-${today}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (typeof imported !== 'object' || Array.isArray(imported)) throw new Error();
+      const merged = Object.assign({}, records, imported);
+      records = merged;
+      saveRecords();
+      alert(`読み込みました（${Object.keys(imported).length}日分）`);
+      loadDay(dateKey(currentDate));
+    } catch {
+      alert('読み込めませんでした。正しいJSONファイルか確認してください。');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function deleteAll() {
+  if (!confirm('全データを削除します。元に戻せません。本当によいですか？')) return;
+  records = {};
+  saveRecords();
+  loadDay(dateKey(currentDate));
+  alert('削除しました');
+}
+
+// ── タブ切り替え ──
+function showTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['record','calendar','graph'][i]===name);
+  });
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if (name==='calendar') { calMonth = new Date(currentDate); renderCal(); }
+  if (name==='graph') setTimeout(renderGraphs, 50);
+}
+
+// ── 初期化 ──
+function init() {
+  loadRecords();
+  const now = new Date();
+  const days = ['日','月','火','水','木','金','土'];
+  document.getElementById('header-today').textContent =
+    `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${days[now.getDay()]}`;
+  updateRecordDateLabel();
+  loadDay(dateKey(currentDate));
+}
+
+init();
+</script>
+</body>
+</html>
